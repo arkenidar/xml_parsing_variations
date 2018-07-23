@@ -1,0 +1,151 @@
+<!doctype html>
+<meta charset="utf8">
+
+<div id="content"></div>
+<div id="content_reference_version"><div style="color:orange" class="main border">2 golden apples cost <b>2000</b> dollars</div>:)</div>
+
+<script>
+function element(array){
+    function content(array){
+        var html=''
+        array.shift()
+        for(i of array)
+            if(typeof i=='object')
+                html+=element(i)
+            else
+                html+= i[0]!='!' ? i : i.slice(1)
+        return html
+    }
+    if(array[0]=='') return content(array)
+    var element_name=array[0]
+    var html='<'+element_name
+    array.shift()
+    var contains_nested=(array.length)%2==1
+    if(contains_nested) var nested=array.pop()
+    for(var i=0; i<array.length; i+=2)
+        html+=' '+array[i]+'="'+array[i+1]+'"'
+    html+='>'
+    if(contains_nested) html+=element(nested)+'</'+element_name+'>'
+    return html
+}
+
+function is_integer(string){
+    if(string=='') return false
+    for(d of string)
+        if(!(d in ['0','1','2','3','4','5','6','7','8','9']))
+            return false
+    return true
+}
+
+function parse_csv(csv){
+    function parse_line(cur){
+        if(!(cur in csv)){
+            console.error('line not found:',cur)
+            return
+        }
+        var line=csv[cur]
+        var format=[]
+        var array=line.split(',')
+        for(var e of array){
+            if(!is_integer(e))
+                format.push(e)
+            else
+                format.push(parse_line(cur+parseInt(e)))
+        }
+        return format
+    }
+    return parse_line(0)
+}
+
+csv=`,1,5
+div,style,color:orange,class,main border,1
+,2 golden apples cost ,1, dollars
+b,1
+,!2000
+,:)`
+csv_array=csv.split('\n')
+document.querySelector('#content').innerHTML+=element(parse_csv(csv_array))
+
+console.log(document.all.content.innerHTML==document.all.content_reference_version.innerHTML, '[element(parse_csv(csv_array))] reference version equality')
+
+
+//////////////////////////////
+
+// from html_shortening.html DOM works
+
+function processNode(processedNode){
+    switch(processedNode.nodeType){
+        case processedNode.TEXT_NODE:
+            return ['',processedNode.textContent]
+            break
+        case processedNode.ELEMENT_NODE:
+            var produced=[]
+            produced.push(processedNode.tagName.toLowerCase())
+            var attribute_section=[]
+            for(attribute of processedNode.attributes)
+                attribute_section.push(attribute.nodeName,attribute.nodeValue)
+            produced.push(...attribute_section)
+            if(processedNode.childNodes)
+                produced.push(processNodes(processedNode.childNodes))
+            return produced
+            break
+    }
+}
+
+function processNodes(nodes){
+    var subNodes=[]
+    for(processedNode of nodes){
+        subNodes.push(processNode(processedNode))
+    }
+    return subNodes
+}
+
+p=console.log
+content_reference_version=document.all.content_reference_version
+
+//p(parse_csv(csv_array))
+array=() => processNodes(content_reference_version.childNodes)
+
+p(JSON.stringify(array()))
+
+// from "element()" function in this file, adapted
+function element_to_html(array){
+    
+    //console.info(array)
+    var element_name=array[0]
+    array.shift()
+    
+    function content(array){
+        var html=''
+        for(var i of array)
+            if(typeof i=='object')
+                html+=array_to_html(i)
+            else
+                html+=i
+        return html
+    }
+    if(element_name=='')
+        return content(array)
+    else{
+        var html='<'+element_name
+        var contains_nested=(array.length)%2==1
+        if(contains_nested) var nested=array.pop()
+        for(var i=0; i<array.length; i+=2)
+            html+=' '+array[i]+'="'+array[i+1]+'"'
+        html+='>'
+        if(contains_nested) html+=array_to_html(nested)+'</'+element_name+'>'
+        return html
+    }
+}
+
+function array_to_html(array){
+    var html=''
+    for(i of array)
+        html+=element_to_html(i)
+    return html
+}
+
+var html=array_to_html(array())
+p(html==content_reference_version.innerHTML, '[array_to_html(array())] reference version equality', html)
+
+</script>
