@@ -92,6 +92,38 @@ function processNode(processedNode){
     }
 }
 
+function processNodeNG(processedNode){
+    switch(processedNode.nodeType){
+        case processedNode.TEXT_NODE:
+            return processedNode.textContent
+            break
+        case processedNode.ELEMENT_NODE:
+            var produced=[]
+            produced.push('~'+processedNode.tagName.toLowerCase())
+            var attribute_section=[]
+            for(attribute of processedNode.attributes)
+                attribute_section.push(attribute.nodeName+'§'+attribute.nodeValue)
+            produced.push(...attribute_section)
+            if(processedNode.childNodes)
+                produced.push(processNodesNG(processedNode.childNodes))
+            return produced.join('~')+'°'
+            break
+    }
+}
+
+console.log('NG',
+processNodesNG(
+    document.all.content_reference_version.childNodes)
+)
+
+function processNodesNG(nodes){
+    var subNodes=[]
+    for(processedNode of nodes){
+        subNodes.push(processNodeNG(processedNode))
+    }
+    return subNodes.join('')
+}
+
 function processNodes(nodes){
     var subNodes=[]
     for(processedNode of nodes){
