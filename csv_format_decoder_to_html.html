@@ -99,14 +99,14 @@ function processNodeNG(processedNode){
             break
         case processedNode.ELEMENT_NODE:
             var produced=[]
-            produced.push('~'+processedNode.tagName.toLowerCase())
+            produced.push('§'+processedNode.tagName.toLowerCase())
             var attribute_section=[]
             for(attribute of processedNode.attributes)
-                attribute_section.push(attribute.nodeName+'§'+attribute.nodeValue)
+                attribute_section.push(attribute.nodeName+'~'+attribute.nodeValue)
             produced.push(...attribute_section)
             if(processedNode.childNodes)
                 produced.push(processNodesNG(processedNode.childNodes))
-            return produced.join('~')+'°'
+            return produced.join('~')+'§'
             break
     }
 }
