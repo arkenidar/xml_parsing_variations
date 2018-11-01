@@ -1,0 +1,143 @@
+<meta charset="utf-8">
+
+<div id="demo">
+{link°href°https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css°rel°stylesheet}
+{link°href°https://getbootstrap.com/docs/4.0/examples/sign-in/signin.css°rel°stylesheet}
+
+{form°class°form-signin°
+    {img°class°mb-4°src°https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg°alt°°width°72°height°72}
+    {h1°class°h3 mb-3 font-weight-normal°Please sign in}
+    {label°for°inputEmail°class°sr-only°Email address}
+    {input°type°email°id°inputEmail°class°form-control°placeholder°Email address°required°°autofocus°}
+    {label°for°inputPassword°class°sr-only°Password}
+    {input°type°password°id°inputPassword°class°form-control°placeholder°Password°required°}
+    {div°class°checkbox mb-3°
+    {label°
+        {input°type°checkbox°value°remember-me} Remember me
+    }
+    }
+    {button°class°btn btn-lg btn-primary btn-block°type°submit°Sign in}
+    {p°class°mt-5 mb-3 text-muted°© 2017-2018}
+}
+</div>
+<script>
+
+p=console.log
+
+function parse(str){
+    if(str=='') return ''
+    var level=0
+    buffer=''
+    for(var i=0;i<str.length;i++){
+        if(level==0 && str[i]!='{' && str[i]!='}')
+            buffer+=str[i]
+        if(str[i]=='{'){
+            if(level==0) open=i
+            level++
+        }
+        if(str[i]=='}'){
+            level--
+            if(level==0) {
+                close=i
+                var text=str.substring(open, close+1)
+                buffer+=parens(text)
+            }
+        }
+    }
+    return buffer
+}
+
+function parens(str){
+    var parts=str.substring(1)
+    parts=parts.substring(0,parts.length-1)
+    
+    var buffer=''
+    var array=[]
+    for(var i=0; i<parts.length; i++)
+    {
+        if(parts[i]=='{'){
+            array.push(buffer+parts.slice(i))
+            buffer=''
+            break
+        }
+        if(parts[i]!='°'){
+            buffer+=parts[i]
+        }
+        
+        if(parts[i]=='°'){
+            array.push(buffer)
+            buffer=''
+        }
+        
+        if(i==parts.length-1){
+            array.push(buffer)
+            buffer=''
+        }
+    }
+    parts=array
+    var tagname=parts[0]
+    parts=parts.slice(1)
+    var content=''
+    if((parts.length%2)==1){
+        content=parts[parts.length-1]
+        parts.splice(-1)
+    }
+    
+    var attributes=''
+    for(var i=0; i<parts.length; i+=2){
+        if(parts[i+1]!='')
+            attributes+=' '+parts[i]+'="'+parts[i+1]+'"'
+        else
+            attributes+=' '+parts[i]
+    }
+    
+    var to_return = '<'+tagname+attributes+'>'+parse(content)+'</'+tagname+'>'
+
+    return to_return
+}
+
+function processNodesNG(nodes){
+    var subNodes=[]
+    for(processedNode of nodes){
+        subNodes.push(processNodeNG(processedNode))
+    }
+    return subNodes.join('')
+}
+
+function processNodeNG(processedNode){
+    switch(processedNode.nodeType){
+        case processedNode.TEXT_NODE:
+            return processedNode.textContent
+            break
+        case processedNode.ELEMENT_NODE:
+            var produced=[]
+            produced.push('{'+processedNode.tagName.toLowerCase())
+            var attribute_section=[]
+            for(attribute of processedNode.attributes)
+                attribute_section.push(attribute.nodeName+'°'+attribute.nodeValue)
+            produced.push(...attribute_section)
+            if(processedNode.childNodes){
+                var sub=processNodesNG(processedNode.childNodes)
+                if(sub!='')produced.push(sub)
+            }
+            return produced.join('°')+'}'
+            break
+    }
+}
+
+//document.all.demo.innerHTML=processNodesNG(document.all.content_reference_version.childNodes)
+
+//alert('before decompression:'+document.all.demo.innerHTML.length)
+
+//myFunction()
+html=document.getElementById("demo").innerHTML
+document.getElementById("demo").innerHTML = parse(html)
+
+//html1='Mr Blue has {u°a blue house and a {b°blue} car}. {input}'
+//p(parse(html1))
+//p(parens('{input}'))
+//p(parens('{b°blue}'))
+//p(parens('{u°a blue house and a {b°blue} car}'))
+
+//alert('after decompression:'+document.all.demo.innerHTML.length)
+</script>
