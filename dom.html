@@ -58,6 +58,76 @@ var previous_lenght= $('pack_this').innerHTML.length
 var reduction=previous_lenght-$('packed').innerHTML.length
 
 $('stats').innerHTML='reduced of '+reduction+' of '+previous_lenght+
-' -- '+reduction/(previous_lenght/100)+'%'
+' -- <b>'+reduction/(previous_lenght/100)+'%</b>'
 $('packed_from_this').innerText=$('pack_this').innerHTML
+
+var equivalence=$('pack_this').innerHTML==parse($('packed').innerHTML)
+$('stats').innerHTML+='<div>is packed equivalent to source? <b>'+equivalence+'</b>'
+
+//////////////////////////////////////
+
+function parse(str){
+    if(str=='') return '';
+    var level=0;
+    buffer='';
+    for(var i=0;i<str.length;i++){
+        if(level==0 && str[i]!='{' && str[i]!='}')
+            buffer+=str[i];
+        if(str[i]=='{'){
+            if(level==0) open=i;
+            level++;
+        }
+        if(str[i]=='}'){
+            level--;
+            if(level==0) {
+                close=i;
+                var text=str.substring(open, close+1);
+                buffer+=parens(text);
+            }
+        }
+    }
+    return buffer;
+}
+function parens(str){
+    var parts=str.substring(1);
+    parts=parts.substring(0,parts.length-1);
+    var buffer='';
+    var array=[];
+    for(var i=0; i<parts.length; i++)
+    {
+        if(parts[i]=='{'){
+            array.push(buffer+parts.slice(i));
+            buffer='';
+            break;
+        }
+        if(parts[i]!='|'){
+            buffer+=parts[i];
+        }
+        if(parts[i]=='|'){
+            array.push(buffer);
+            buffer='';
+        }
+        if(i==parts.length-1){
+            array.push(buffer);
+            buffer='';
+        }
+    }
+    parts=array;
+    var tagname=parts[0];
+    parts=parts.slice(1);
+    var content='';
+    if((parts.length%2)==1){
+        content=parts[parts.length-1];
+        parts.splice(-1);
+    }
+    var attributes='';
+    for(var i=0; i<parts.length; i+=2){
+        if(parts[i+1]!='')
+            attributes+=' '+parts[i]+'="'+parts[i+1]+'"';
+        else
+            attributes+=' '+parts[i];
+    }
+    var to_return='<'+tagname+attributes+'>'+parse(content)+'</'+tagname+'>';
+    return to_return;
+}
 </script>
