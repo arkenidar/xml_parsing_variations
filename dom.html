@@ -54,6 +54,10 @@ function $(id){
 }
 
 $('packed').innerHTML=pack($('pack_this'))
-$('stats').innerHTML='reduced of '+($('pack_this').innerHTML.length-$('packed').innerHTML.length)+' of '+$('pack_this').innerHTML.length
+var previous_lenght= $('pack_this').innerHTML.length
+var reduction=previous_lenght-$('packed').innerHTML.length
+
+$('stats').innerHTML='reduced of '+reduction+' of '+previous_lenght+
+' -- '+reduction/(previous_lenght/100)+'%'
 $('packed_from_this').innerText=$('pack_this').innerHTML
 </script>
