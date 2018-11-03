@@ -3,9 +3,17 @@
 
 <div id="pack_this" style="display: none"><div class="msg">HTML text ENCODER</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div></div>
 
+<b>statistics</b>
 <div id="stats"></div>
+<hr>
 
+<b>packing results in this</b>
 <div id="packed"></div>
+<hr>
+
+<b>packed from this HTML</b>
+<div id="packed_from_this"></div>
+<hr>
 
 <script>
 
@@ -47,4 +55,5 @@ function $(id){
 
 $('packed').innerHTML=pack($('pack_this'))
 $('stats').innerHTML='reduced of '+($('pack_this').innerHTML.length-$('packed').innerHTML.length)+' of '+$('pack_this').innerHTML.length
+$('packed_from_this').innerText=$('pack_this').innerHTML
 </script>
