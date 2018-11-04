@@ -90,7 +90,7 @@ function $(id){
 
 var packingResults=pack($('pack_this'),{})
 $('packed').innerHTML=packingResults.text
-console.log(dictSort(packingResults.dictionary))
+
 var previousLenght= $('pack_this').innerHTML.length
 var reduction=previousLenght-$('packed').innerHTML.length
 
@@ -169,20 +169,8 @@ function parens(str,codes){
     return to_return;
 }
 
+///////////////////////
 
-/*
-var dict = {
-  "x": 1,
-  "y": 6,
-  "z": 9,
-  "a": 5,
-  "b": 7,
-  "c": 11,
-  "d": 17,
-  "t": 3
-};
-console.log(dictSort(dict))
-*/
 function dictSort(dict){
     // create items array
     var items = Object.entries(dict)
@@ -194,25 +182,26 @@ function dictSort(dict){
 
     return items
 }
+
+//////////////
+
 var html='<div class="msg">some text</div>'
 $('inject').innerHTML=html
 var packed=pack($('inject'),{})
 packed.dictionary=dictSort(packed.dictionary)
 packed.dictionary=packed.dictionary.map(e=>e[0])
-//console.log('sort',dictSort(packed.dictionary))
-console.log(packed)
 var dict=packed.dictionary//['class','div']
 var packed1=packed.text//'{div|class|msg|some text}'
 console.log(unpack(packed1,i=>i))
-codes=(code)=>dict.indexOf(code)
-//
-var parsedCodes=parseCodes(packed1)
+var parsedCodes=parseCodes(packed1,code=>dict.indexOf(code))
 console.log(parsedCodes)
 var unpackedCodes=unpack(parsedCodes,i=>dict[i])
 console.log('original html',unpackedCodes)
 console.log('equality with original html', unpackedCodes==html)
 
-function parensCodes(str){
+//////////////////////////////////////////////
+
+function parensCodes(str,codes){
     var parts=str.substring(1);
     parts=parts.substring(0,parts.length-1);
     var buffer='';
@@ -248,13 +237,13 @@ function parensCodes(str){
     for(var i=0; i<parts.length; i+=2){
         attributes+='|'+codes(parts[i])+'|'+parts[i+1];
     }
-    var subpart=parseCodes(content);
+    var subpart=parseCodes(content,codes);
     if(subpart!='') subpart='|'+subpart;
     var to_return='{'+tagname+attributes+subpart+'}';
     return to_return;
 }
 
-function parseCodes(str){
+function parseCodes(str,codes){
     if(str=='') return '';
     var level=0;
     buffer='';
@@ -270,7 +259,7 @@ function parseCodes(str){
             if(level==0) {
                 close=i;
                 var text=str.substring(open, close+1);
-                buffer+=parensCodes(text);
+                buffer+=parensCodes(text,codes);
             }
         }
     }
