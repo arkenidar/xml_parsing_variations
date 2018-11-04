@@ -17,28 +17,46 @@
 
 <script>
 
-function processNodesNG(nodes){
+function processDOM(nodes,dictionary){
+
+dictOn=()=>typeof dictionary!='undefined'
+
+function processNodes(nodes){
     var subNodes=[]
     for(processedNode of nodes){
-        subNodes.push(processNodeNG(processedNode))
+        subNodes.push(processNode(processedNode))
     }
     return subNodes.join('')
 }
 
-function processNodeNG(processedNode){
+function processNode(processedNode){
+    
+    function addToDictionary(name){
+        if(!dictOn()) return
+        if(name in dictionary)
+            dictionary[name]+=name.length
+        else
+            dictionary[name]=0
+    }
+
     switch(processedNode.nodeType){
         case processedNode.TEXT_NODE:
             return processedNode.textContent
             break
         case processedNode.ELEMENT_NODE:
             var produced=[]
-            produced.push('{'+processedNode.tagName.toLowerCase())
+            var tagName=processedNode.tagName.toLowerCase()
+            addToDictionary(tagName)
+            produced.push('{'+tagName)
             var attribute_section=[]
-            for(attribute of processedNode.attributes)
-                attribute_section.push(attribute.nodeName+'|'+attribute.nodeValue)
+            for(attribute of processedNode.attributes){
+                var nodeName=attribute.nodeName
+                addToDictionary(nodeName)
+                attribute_section.push(nodeName+'|'+attribute.nodeValue)
+            }
             produced.push(...attribute_section)
             if(processedNode.childNodes){
-                var sub=processNodesNG(processedNode.childNodes)
+                var sub=processNodes(processedNode.childNodes)
                 if(sub!='')produced.push(sub)
             }
             return produced.join('|')+'}'
@@ -46,14 +64,31 @@ function processNodeNG(processedNode){
     }
 }
 
-function pack(node){
-    return processNodesNG(node.childNodes)
+var text=processNodes(nodes)
+
+//if(dictOn()) console.log(dictSort(dictionary))
+
+return {text,dictionary}
 }
+
+// HTML => packed
+function pack(node,dictionary){
+    var result=processDOM(node.childNodes,dictionary)
+    return result
+}
+
+// packed => HTML
+function unpack(string){
+    return parse(string)
+}
+
 function $(id){
     return document.getElementById(id)
 }
 
-$('packed').innerHTML=pack($('pack_this'))
+var packingResults=pack($('pack_this'),{})
+$('packed').innerHTML=packingResults.text
+console.log(dictSort(packingResults.dictionary))
 var previous_lenght= $('pack_this').innerHTML.length
 var reduction=previous_lenght-$('packed').innerHTML.length
 
@@ -61,12 +96,12 @@ $('stats').innerHTML='reduced of '+reduction+' of '+previous_lenght+
 ' -- <b>'+reduction/(previous_lenght/100)+'%</b>'
 $('packed_from_this').innerText=$('pack_this').innerHTML
 
-var equivalence=$('pack_this').innerHTML==parse($('packed').innerHTML)
+var equivalence=$('pack_this').innerHTML==unpack($('packed').innerHTML)
 $('stats').innerHTML+='<div>is packed equivalent to source? <b>'+equivalence+'</b>'
 
 //////////////////////////////////////
 
-function parse(str){
+function parse(str,subfunction=parens,codes=(i)=>i){
     if(str=='') return '';
     var level=0;
     buffer='';
@@ -82,13 +117,13 @@ function parse(str){
             if(level==0) {
                 close=i;
                 var text=str.substring(open, close+1);
-                buffer+=parens(text);
+                buffer+=subfunction(text,codes);
             }
         }
     }
     return buffer;
 }
-function parens(str){
+function parens(str,subfunction=parse,codes=(i)=>i){
     var parts=str.substring(1);
     parts=parts.substring(0,parts.length-1);
     var buffer='';
@@ -113,7 +148,7 @@ function parens(str){
         }
     }
     parts=array;
-    var tagname=parts[0];
+    var tagname=codes(parts[0]);
     parts=parts.slice(1);
     var content='';
     if((parts.length%2)==1){
@@ -123,11 +158,36 @@ function parens(str){
     var attributes='';
     for(var i=0; i<parts.length; i+=2){
         if(parts[i+1]!='')
-            attributes+=' '+parts[i]+'="'+parts[i+1]+'"';
+            attributes+=' '+codes(parts[i])+'="'+parts[i+1]+'"';
         else
-            attributes+=' '+parts[i];
+            attributes+=' '+codes(parts[i]);
     }
-    var to_return='<'+tagname+attributes+'>'+parse(content)+'</'+tagname+'>';
+    var to_return='<'+tagname+attributes+'>'+subfunction(content,codes)+'</'+tagname+'>';
     return to_return;
+}
+
+
+/*
+var dict = {
+  "x": 1,
+  "y": 6,
+  "z": 9,
+  "a": 5,
+  "b": 7,
+  "c": 11,
+  "d": 17,
+  "t": 3
+};
+console.log(dictSort(dict))
+*/
+function dictSort(dict){
+    // create items array
+    var items = Object.entries(dict)
+    console.log(items)
+
+    // sort the array based on the second element
+    items.sort(function(first, second) {
+        return second[1]-first[1]
+    })
 }
 </script>
