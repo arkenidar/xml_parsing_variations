@@ -67,16 +67,17 @@ function processNode(processedNode){
 }
 
 var text=processNodes(nodes)
-
-//if(dictOn()) console.log(dictSort(dictionary))
-
 return {text,dictionary}
 }
 
 // HTML => packed
 function pack(node,dictionary){
-    var result=processDOM(node.childNodes,dictionary)
-    return result
+    var packed=processDOM(node.childNodes,dictionary)
+    if(typeof dictionary!='undefined'){
+        packed.dictionary=dictSort(packed.dictionary)
+        packed.dictionary=packed.dictionary.map(e=>e[0])
+    }
+    return packed
 }
 
 // packed => HTML
@@ -169,7 +170,7 @@ function parens(str,codes){
     return to_return;
 }
 
-///////////////////////
+//////////////////////////////////////////////
 
 function dictSort(dict){
     // create items array
@@ -183,40 +184,19 @@ function dictSort(dict){
     return items
 }
 
-//////////////
+//////////////////////////////////////////////
 
-var html='<div class="msg">some text</div>'
-testPack1And2AndUnpack(html)
+$('inject').innerHTML='<div class="msg">some text</div>'
+console.log(testPack1And2AndUnpack($('inject')))
 
-function testPack1And2AndUnpack(html,debug=true){
-
-$('inject').innerHTML=html//'<div class="msg">some text</div>'
-
-// pack phase1
-var packed=pack($('inject'),{})
-packed.dictionary=dictSort(packed.dictionary)
-packed.dictionary=packed.dictionary.map(e=>e[0])
-
-// dictionary is ready
-var dict=packed.dictionary//['class','div']
-
-// text is ready
-var packed1=packed.text//'{div|class|msg|some text}'
-
-// debug test
-if(debug) console.log(unpack(packed1,i=>i))
-
-//pack phase2
-var parsedCodes=parseCodes(packed1,code=>dict.indexOf(code))
-if(debug) console.log(parsedCodes)
-
-// unpack from phase2
-var unpackedCodes=unpack(parsedCodes,i=>dict[i])
-
-// debug
-if(debug) console.log('original html',unpackedCodes)
-if(debug) console.log('equality with original html', unpackedCodes==html)
-
+function testPack1And2AndUnpack(node){
+    // pack phase1
+    var packed=pack(node,{})
+    // pack phase2
+    var parsedCodes=parseCodes(packed.text,code=>packed.dictionary.indexOf(code))
+    // unpack from phase2
+    var unpackedCodes=unpack(parsedCodes,i=>packed.dictionary[i])
+    return {packed,parsedCodes,unpackedCodes}
 }
 
 //////////////////////////////////////////////
