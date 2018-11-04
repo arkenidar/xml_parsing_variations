@@ -15,6 +15,8 @@
 <div id="packed_from_this"></div>
 <hr>
 
+<div style="display:none" id="inject"></div>
+
 <script>
 
 function processDOM(nodes,dictionary){
@@ -36,7 +38,7 @@ function processNode(processedNode){
         if(name in dictionary)
             dictionary[name]+=name.length
         else
-            dictionary[name]=0
+            dictionary[name]=name.length
     }
 
     switch(processedNode.nodeType){
@@ -78,8 +80,8 @@ function pack(node,dictionary){
 }
 
 // packed => HTML
-function unpack(string){
-    return parse(string)
+function unpack(string,codes){
+    return parse(string,codes)
 }
 
 function $(id){
@@ -89,19 +91,19 @@ function $(id){
 var packingResults=pack($('pack_this'),{})
 $('packed').innerHTML=packingResults.text
 console.log(dictSort(packingResults.dictionary))
-var previous_lenght= $('pack_this').innerHTML.length
-var reduction=previous_lenght-$('packed').innerHTML.length
+var previousLenght= $('pack_this').innerHTML.length
+var reduction=previousLenght-$('packed').innerHTML.length
 
-$('stats').innerHTML='reduced of '+reduction+' of '+previous_lenght+
-' -- <b>'+reduction/(previous_lenght/100)+'%</b>'
+$('stats').innerHTML='reduced of '+reduction+' of '+previousLenght+
+' -- <b>'+reduction/(previousLenght/100)+'%</b>'
 $('packed_from_this').innerText=$('pack_this').innerHTML
 
-var equivalence=$('pack_this').innerHTML==unpack($('packed').innerHTML)
+var equivalence=$('pack_this').innerHTML==unpack($('packed').innerHTML,(i)=>i)
 $('stats').innerHTML+='<div>is packed equivalent to source? <b>'+equivalence+'</b>'
 
 //////////////////////////////////////
 
-function parse(str,subfunction=parens,codes=(i)=>i){
+function parse(str,codes){
     if(str=='') return '';
     var level=0;
     buffer='';
@@ -117,13 +119,14 @@ function parse(str,subfunction=parens,codes=(i)=>i){
             if(level==0) {
                 close=i;
                 var text=str.substring(open, close+1);
-                buffer+=subfunction(text,codes);
+                buffer+=parens(text,codes);
             }
         }
     }
     return buffer;
 }
-function parens(str,subfunction=parse,codes=(i)=>i){
+
+function parens(str,codes){
     var parts=str.substring(1);
     parts=parts.substring(0,parts.length-1);
     var buffer='';
@@ -162,7 +165,7 @@ function parens(str,subfunction=parse,codes=(i)=>i){
         else
             attributes+=' '+codes(parts[i]);
     }
-    var to_return='<'+tagname+attributes+'>'+subfunction(content,codes)+'</'+tagname+'>';
+    var to_return='<'+tagname+attributes+'>'+parse(content,codes)+'</'+tagname+'>';
     return to_return;
 }
 
@@ -183,11 +186,95 @@ console.log(dictSort(dict))
 function dictSort(dict){
     // create items array
     var items = Object.entries(dict)
-    console.log(items)
 
     // sort the array based on the second element
     items.sort(function(first, second) {
         return second[1]-first[1]
     })
+
+    return items
 }
+var html='<div class="msg">some text</div>'
+$('inject').innerHTML=html
+var packed=pack($('inject'),{})
+packed.dictionary=dictSort(packed.dictionary)
+packed.dictionary=packed.dictionary.map(e=>e[0])
+//console.log('sort',dictSort(packed.dictionary))
+console.log(packed)
+var dict=packed.dictionary//['class','div']
+var packed1=packed.text//'{div|class|msg|some text}'
+console.log(unpack(packed1,i=>i))
+codes=(code)=>dict.indexOf(code)
+//
+var parsedCodes=parseCodes(packed1)
+console.log(parsedCodes)
+var unpackedCodes=unpack(parsedCodes,i=>dict[i])
+console.log('original html',unpackedCodes)
+console.log('equality with original html', unpackedCodes==html)
+
+function parensCodes(str){
+    var parts=str.substring(1);
+    parts=parts.substring(0,parts.length-1);
+    var buffer='';
+    var array=[];
+    for(var i=0; i<parts.length; i++)
+    {
+        if(parts[i]=='{'){
+            array.push(buffer+parts.slice(i));
+            buffer='';
+            break;
+        }
+        if(parts[i]!='|'){
+            buffer+=parts[i];
+        }
+        if(parts[i]=='|'){
+            array.push(buffer);
+            buffer='';
+        }
+        if(i==parts.length-1){
+            array.push(buffer);
+            buffer='';
+        }
+    }
+    parts=array;
+    var tagname=codes(parts[0]);
+    parts=parts.slice(1);
+    var content='';
+    if((parts.length%2)==1){
+        content=parts[parts.length-1];
+        parts.splice(-1);
+    }
+    var attributes='';
+    for(var i=0; i<parts.length; i+=2){
+        attributes+='|'+codes(parts[i])+'|'+parts[i+1];
+    }
+    var subpart=parseCodes(content);
+    if(subpart!='') subpart='|'+subpart;
+    var to_return='{'+tagname+attributes+subpart+'}';
+    return to_return;
+}
+
+function parseCodes(str){
+    if(str=='') return '';
+    var level=0;
+    buffer='';
+    for(var i=0;i<str.length;i++){
+        if(level==0 && str[i]!='{' && str[i]!='}')
+            buffer+=str[i];
+        if(str[i]=='{'){
+            if(level==0) open=i;
+            level++;
+        }
+        if(str[i]=='}'){
+            level--;
+            if(level==0) {
+                close=i;
+                var text=str.substring(open, close+1);
+                buffer+=parensCodes(text);
+            }
+        }
+    }
+    return buffer;
+}
+
 </script>
