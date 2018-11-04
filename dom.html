@@ -2,6 +2,11 @@
 <meta charset="utf-8">
 
 <script id="pack_this" type="html"><link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet"></link><link href="https://getbootstrap.com/docs/4.0/examples/sign-in/signin.css" rel="stylesheet"></link><form class="form-signin"><img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" width="72" height="72"></img><h1 class="h3 mb-3 font-weight-normal">Please sign in</h1><label for="inputEmail" class="sr-only">Email address</label><input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus></input><label for="inputPassword" class="sr-only">Password</label><input type="password" id="inputPassword" class="form-control" placeholder="Password" required></input><div class="checkbox mb-3"><label><input type="checkbox" value="remember-me"></input> Remember me</label></div><button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button><p class="mt-5 mb-3 text-muted">© 2017-2018</p></form></script>
+
+<button onclick="useFileSource(prompt('benchmark file URL','benchmark1.html'))">from url...</button>
+<button onclick="useFileSource('benchmark1.html')">benchmark1</button>
+<button onclick="useFileSource('benchmark2.html')">benchmark2</button> <br>
+
 <b>statistics</b>
 <div id="stats"></div>
 <hr>
@@ -102,23 +107,37 @@ function $(id){
     return document.getElementById(id)
 }
 
+useSource('<b>source</b>')
+
+useSource($('pack_this').innerHTML)
+
+useFileSource('benchmark2.html')
+
+function useFileSource(url){
+    get=async(url,type='text')=>await(await fetch(url))[type]()
+    get(url).then(html=>useSource(html))
+}
+
+function useSource(source){
+
 var packingResults=testPack1And2AndUnpack(
-    document.createRange().createContextualFragment($('pack_this').text)
+    document.createRange().createContextualFragment(source)
     )
 $('packed1').innerText=packingResults.packed.text
 $('packed2').innerText=packingResults.parsedCodes
 
-var previousLenght= $('pack_this').innerHTML.length
+var previousLenght=source.length
 var reduction=previousLenght-$('packed2').innerHTML.length
 
 $('stats').innerHTML='reduced of '+reduction+' of '+previousLenght+
 ' -- <b>'+Math.round(reduction/(previousLenght/100))+'%</b>'
-$('packed_from_this').innerText=$('pack_this').innerHTML
+$('packed_from_this').innerText=source
 
 $('unpacked').innerText=packingResults.unpackedCodes
-var equivalence=$('pack_this').text.length==packingResults.unpackedCodes.length
+var equivalence=source.length==packingResults.unpackedCodes.length
 $('stats').innerHTML+='<div>is packed equivalent to source? (lenght-based because property order can be shuffled) <b>'+equivalence+'</b>'
 
+}
 //////////////////////////////////////
 
 function parse(str,codes){
