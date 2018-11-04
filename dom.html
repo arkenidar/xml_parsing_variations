@@ -32,12 +32,12 @@ function processNodes(nodes){
 
 function processNode(processedNode){
     
-    function addToDictionary(name){
+    function addToDictionary(name,type){
         if(!dictOn()) return
-        if(name in dictionary)
-            dictionary[name]+=name.length
+        if(name in dictionary[type])
+            dictionary[type][name]+=name.length
         else
-            dictionary[name]=name.length
+            dictionary[type][name]=name.length
     }
 
     switch(processedNode.nodeType){
@@ -47,12 +47,12 @@ function processNode(processedNode){
         case processedNode.ELEMENT_NODE:
             var produced=[]
             var tagName=processedNode.tagName.toLowerCase()
-            addToDictionary(tagName)
+            addToDictionary(tagName,'tagName')
             produced.push('{'+tagName)
             var attribute_section=[]
             for(attribute of processedNode.attributes){
                 var nodeName=attribute.nodeName
-                addToDictionary(nodeName)
+                addToDictionary(nodeName,'nodeName')
                 attribute_section.push(nodeName+'|'+attribute.nodeValue)
             }
             produced.push(...attribute_section)
@@ -73,8 +73,13 @@ return {text,dictionary}
 function pack(node,dictionary){
     var packed=processDOM(node.childNodes,dictionary)
     if(typeof dictionary!='undefined'){
-        packed.dictionary=dictSort(packed.dictionary)
-        packed.dictionary=packed.dictionary.map(e=>e[0])
+        function processDictionary(dictionary){
+            dictionary=dictSort(dictionary)
+            dictionary=dictionary.map(e=>e[0])
+            return dictionary   
+        }
+        packed.dictionary.tagName=processDictionary(packed.dictionary.tagName)
+        packed.dictionary.nodeName=processDictionary(packed.dictionary.nodeName)
     }
     return packed
 }
@@ -153,7 +158,7 @@ function parens(str,codes){
         }
     }
     parts=array;
-    var tagname=codes(parts[0]);
+    var tagname=codes(parts[0],'tagName');
     parts=parts.slice(1);
     var content='';
     if((parts.length%2)==1){
@@ -163,9 +168,9 @@ function parens(str,codes){
     var attributes='';
     for(var i=0; i<parts.length; i+=2){
         if(parts[i+1]!='')
-            attributes+=' '+codes(parts[i])+'="'+parts[i+1]+'"';
+            attributes+=' '+codes(parts[i],'nodeName')+'="'+parts[i+1]+'"';
         else
-            attributes+=' '+codes(parts[i]);
+            attributes+=' '+codes(parts[i],'nodeName');
     }
     var to_return='<'+tagname+attributes+'>'+parse(content,codes)+'</'+tagname+'>';
     return to_return;
@@ -192,11 +197,11 @@ function dictSort(dict){
 
 function testPack1And2AndUnpack(node){
     // pack phase1
-    var packed=pack(node,{})
+    var packed=pack(node,{tagName:{},nodeName:{}})
     // pack phase2
-    var parsedCodes=parseCodes(packed.text,code=>packed.dictionary.indexOf(code))
+    var parsedCodes=parseCodes(packed.text,(code,type)=>packed.dictionary[type].indexOf(code))
     // unpack from phase2
-    var unpackedCodes=unpack(parsedCodes,i=>packed.dictionary[i])
+    var unpackedCodes=unpack(parsedCodes,(i,type)=>packed.dictionary[type][i])
     return {packed,parsedCodes,unpackedCodes}
 }
 
@@ -227,7 +232,7 @@ function parensCodes(str,codes){
         }
     }
     parts=array;
-    var tagname=codes(parts[0]);
+    var tagname=codes(parts[0],'tagName');
     parts=parts.slice(1);
     var content='';
     if((parts.length%2)==1){
@@ -236,7 +241,7 @@ function parensCodes(str,codes){
     }
     var attributes='';
     for(var i=0; i<parts.length; i+=2){
-        attributes+='|'+codes(parts[i])+'|'+parts[i+1];
+        attributes+='|'+codes(parts[i],'nodeName')+'|'+parts[i+1];
     }
     var subpart=parseCodes(content,codes);
     if(subpart!='') subpart='|'+subpart;
