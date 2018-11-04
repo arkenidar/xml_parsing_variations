@@ -116,8 +116,8 @@ $('stats').innerHTML='reduced of '+reduction+' of '+previousLenght+
 $('packed_from_this').innerText=$('pack_this').innerHTML
 
 $('unpacked').innerText=packingResults.unpackedCodes
-var equivalence=$('pack_this').text==packingResults.unpackedCodes
-$('stats').innerHTML+='<div>is packed equivalent to source? <b>'+equivalence+'</b>'
+var equivalence=$('pack_this').text.length==packingResults.unpackedCodes.length
+$('stats').innerHTML+='<div>is packed equivalent to source? (lenght-based because property order can be shuffled) <b>'+equivalence+'</b>'
 
 //////////////////////////////////////
 
