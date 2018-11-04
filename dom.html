@@ -1,8 +1,7 @@
 <title>pack html</title>
 <meta charset="utf-8">
 
-<script id="pack_this" type="html"><div class="msg">HTML text ENCODER</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div></script>
-
+<script id="pack_this" type="html"><link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet"></link><link href="https://getbootstrap.com/docs/4.0/examples/sign-in/signin.css" rel="stylesheet"></link><form class="form-signin"><img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" width="72" height="72"></img><h1 class="h3 mb-3 font-weight-normal">Please sign in</h1><label for="inputEmail" class="sr-only">Email address</label><input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus></input><label for="inputPassword" class="sr-only">Password</label><input type="password" id="inputPassword" class="form-control" placeholder="Password" required></input><div class="checkbox mb-3"><label><input type="checkbox" value="remember-me"></input> Remember me</label></div><button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button><p class="mt-5 mb-3 text-muted">© 2017-2018</p></form></script>
 <b>statistics</b>
 <div id="stats"></div>
 <hr>
@@ -98,10 +97,10 @@ var previousLenght= $('pack_this').innerHTML.length
 var reduction=previousLenght-$('packed').innerHTML.length
 
 $('stats').innerHTML='reduced of '+reduction+' of '+previousLenght+
-' -- <b>'+reduction/(previousLenght/100)+'%</b>'
+' -- <b>'+Math.round(reduction/(previousLenght/100))+'%</b>'
 $('packed_from_this').innerText=$('pack_this').innerHTML
 
-var equivalence=$('pack_this').innerHTML==packingResults.unpackedCodes//unpack($('packed').innerHTML,(i)=>i)
+var equivalence=$('pack_this').text==packingResults.unpackedCodes
 $('stats').innerHTML+='<div>is packed equivalent to source? <b>'+equivalence+'</b>'
 
 //////////////////////////////////////
@@ -188,8 +187,8 @@ function dictSort(dict){
 
 //////////////////////////////////////////////
 
-$('inject').innerHTML='<div class="msg">some text</div>'
-console.log(testPack1And2AndUnpack($('inject')))
+//$('inject').innerHTML='<div class="msg">some text</div>'
+//console.log(testPack1And2AndUnpack($('inject')))
 
 function testPack1And2AndUnpack(node){
     // pack phase1
