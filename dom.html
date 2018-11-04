@@ -100,7 +100,7 @@ $('stats').innerHTML='reduced of '+reduction+' of '+previousLenght+
 ' -- <b>'+Math.round(reduction/(previousLenght/100))+'%</b>'
 $('packed_from_this').innerText=$('pack_this').innerHTML
 
-var equivalence=$('pack_this').text==packingResults.unpackedCodes
+var equivalence=($('pack_this').text)==(packingResults.unpackedCodes)
 $('stats').innerHTML+='<div>is packed equivalent to source? <b>'+equivalence+'</b>'
 
 //////////////////////////////////////
