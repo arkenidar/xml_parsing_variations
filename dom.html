@@ -89,8 +89,8 @@ function $(id){
     return document.getElementById(id)
 }
 
-var packingResults=pack($('pack_this'),{})
-$('packed').innerHTML=packingResults.text
+var packingResults=testPack1And2AndUnpack($('pack_this'))
+$('packed').innerHTML=packingResults.parsedCodes
 
 var previousLenght= $('pack_this').innerHTML.length
 var reduction=previousLenght-$('packed').innerHTML.length
@@ -99,7 +99,7 @@ $('stats').innerHTML='reduced of '+reduction+' of '+previousLenght+
 ' -- <b>'+reduction/(previousLenght/100)+'%</b>'
 $('packed_from_this').innerText=$('pack_this').innerHTML
 
-var equivalence=$('pack_this').innerHTML==unpack($('packed').innerHTML,(i)=>i)
+var equivalence=$('pack_this').innerHTML==packingResults.unpackedCodes//unpack($('packed').innerHTML,(i)=>i)
 $('stats').innerHTML+='<div>is packed equivalent to source? <b>'+equivalence+'</b>'
 
 //////////////////////////////////////
