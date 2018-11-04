@@ -186,18 +186,38 @@ function dictSort(dict){
 //////////////
 
 var html='<div class="msg">some text</div>'
-$('inject').innerHTML=html
+testPack1And2AndUnpack(html)
+
+function testPack1And2AndUnpack(html,debug=true){
+
+$('inject').innerHTML=html//'<div class="msg">some text</div>'
+
+// pack phase1
 var packed=pack($('inject'),{})
 packed.dictionary=dictSort(packed.dictionary)
 packed.dictionary=packed.dictionary.map(e=>e[0])
+
+// dictionary is ready
 var dict=packed.dictionary//['class','div']
+
+// text is ready
 var packed1=packed.text//'{div|class|msg|some text}'
-console.log(unpack(packed1,i=>i))
+
+// debug test
+if(debug) console.log(unpack(packed1,i=>i))
+
+//pack phase2
 var parsedCodes=parseCodes(packed1,code=>dict.indexOf(code))
-console.log(parsedCodes)
+if(debug) console.log(parsedCodes)
+
+// unpack from phase2
 var unpackedCodes=unpack(parsedCodes,i=>dict[i])
-console.log('original html',unpackedCodes)
-console.log('equality with original html', unpackedCodes==html)
+
+// debug
+if(debug) console.log('original html',unpackedCodes)
+if(debug) console.log('equality with original html', unpackedCodes==html)
+
+}
 
 //////////////////////////////////////////////
 
