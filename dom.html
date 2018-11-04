@@ -1,7 +1,7 @@
 <title>pack html</title>
 <meta charset="utf-8">
 
-<div id="pack_this" style="display: none"><div class="msg">HTML text ENCODER</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div></div>
+<script id="pack_this" type="html"><div class="msg">HTML text ENCODER</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div><div class="msg">some text</div></script>
 
 <b>statistics</b>
 <div id="stats"></div>
@@ -89,8 +89,10 @@ function $(id){
     return document.getElementById(id)
 }
 
-var packingResults=testPack1And2AndUnpack($('pack_this'))
-$('packed').innerHTML=packingResults.parsedCodes
+var packingResults=testPack1And2AndUnpack(
+    document.createRange().createContextualFragment($('pack_this').text)
+    )
+$('packed').innerText=packingResults.parsedCodes
 
 var previousLenght= $('pack_this').innerHTML.length
 var reduction=previousLenght-$('packed').innerHTML.length
