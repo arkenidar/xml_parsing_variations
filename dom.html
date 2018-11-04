@@ -6,8 +6,11 @@
 <div id="stats"></div>
 <hr>
 
-<b>packing results in this</b>
-<div id="packed"></div>
+<b>packing results in this (level 2)</b>
+<div id="packed2"></div>
+<hr>
+<b>packing results in this (level 1)</b>
+<div id="packed1"></div>
 <hr>
 
 <b>packed from this HTML</b>
@@ -96,10 +99,11 @@ function $(id){
 var packingResults=testPack1And2AndUnpack(
     document.createRange().createContextualFragment($('pack_this').text)
     )
-$('packed').innerText=packingResults.parsedCodes
+$('packed1').innerText=packingResults.packed.text
+$('packed2').innerText=packingResults.parsedCodes
 
 var previousLenght= $('pack_this').innerHTML.length
-var reduction=previousLenght-$('packed').innerHTML.length
+var reduction=previousLenght-$('packed2').innerHTML.length
 
 $('stats').innerHTML='reduced of '+reduction+' of '+previousLenght+
 ' -- <b>'+Math.round(reduction/(previousLenght/100))+'%</b>'
