@@ -1,12 +1,14 @@
 <title>pack html</title>
 <meta charset="utf-8">
 
-<script id="pack_this" type="html"><link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet"></link><link href="https://getbootstrap.com/docs/4.0/examples/sign-in/signin.css" rel="stylesheet"></link><form class="form-signin"><img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" width="72" height="72"></img><h1 class="h3 mb-3 font-weight-normal">Please sign in</h1><label for="inputEmail" class="sr-only">Email address</label><input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus></input><label for="inputPassword" class="sr-only">Password</label><input type="password" id="inputPassword" class="form-control" placeholder="Password" required></input><div class="checkbox mb-3"><label><input type="checkbox" value="remember-me"></input> Remember me</label></div><button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button><p class="mt-5 mb-3 text-muted">© 2017-2018</p></form></script>
+<script id="pack_this" type="html"></script>
 
+<button onclick="useFileSource('benchmark1.html')">benchmark1</button> 
+<button onclick="useFileSource('benchmark2.html')">benchmark2</button>
+<button onclick="useFileSource('benchmark3.html')">benchmark3</button>
 <button onclick="useFileSource(prompt('benchmark file URL','benchmark1.html'))">from url...</button>
-<button onclick="useFileSource('benchmark1.html')">benchmark1</button>
-<button onclick="useFileSource('benchmark2.html')">benchmark2</button> <br>
 
+<br>
 <b>statistics</b>
 <div id="stats"></div>
 <hr>
@@ -20,15 +22,17 @@
 <div id="packed1" class="codeview"></div>
 <hr>
 
-<b>packed from this HTML</b>
+<b>packed from this HTML/SVG/XML</b>
 <div id="packed_from_this" class="codeview"></div>
 <hr>
 
-<b>reconstructed/unpacked HTML</b>
+<b>reconstructed/unpacked HTML/SVG/XML</b>
 <div id="unpacked" class="codeview"></div>
 <hr>
 
 <div style="display:none" id="inject"></div>
+
+<iframe id="show"></iframe>
 
 <script>
 
@@ -107,14 +111,15 @@ function $(id){
     return document.getElementById(id)
 }
 
-useSource('<b>source</b>')
+//useSource('<b>source</b>')
 
-useSource($('pack_this').innerHTML)
+//useSource($('pack_this').innerHTML)
 
-useFileSource('benchmark2.html')
+useFileSource('benchmark1.html')
 
 function useFileSource(url){
     get=async(url,type='text')=>await(await fetch(url))[type]()
+    $('show').src=url
     get(url).then(html=>useSource(html))
 }
 
@@ -129,13 +134,12 @@ $('packed2').innerText=packingResults.parsedCodes
 var previousLenght=source.length
 var reduction=previousLenght-$('packed2').innerHTML.length
 
-$('stats').innerHTML='reduced of '+reduction+' of '+previousLenght+
-' -- <b>'+Math.round(reduction/(previousLenght/100))+'%</b>'
+$('stats').innerHTML='<b>'+Math.round(reduction/(previousLenght/100))+'%</b> reduced of '+reduction+' of '+previousLenght
 $('packed_from_this').innerText=source
 
 $('unpacked').innerText=packingResults.unpackedCodes
 var equivalence=source.length==packingResults.unpackedCodes.length
-$('stats').innerHTML+='<div>is packed equivalent to source? (lenght-based because property order can be shuffled) <b>'+equivalence+'</b>'
+$('stats').innerHTML+='<div><b>'+equivalence+'</b> is packed equivalent to source? (lenght-based because property order can be shuffled)'
 
 }
 //////////////////////////////////////
@@ -216,7 +220,12 @@ function parens(str,codes){
         else
             attributes+=' '+codes(attribs[i],'nodeName');
     }
-    var to_return='<'+tagname+attributes+'>'+parse(content,codes)+'</'+tagname+'>';
+    var child=parse(content,codes);
+    var to_return;
+    if(child!='')
+        to_return='<'+tagname+attributes+'>'+child+'</'+tagname+'>';
+    else
+        to_return='<'+tagname+attributes+'/>';
     return to_return;
 }
 
