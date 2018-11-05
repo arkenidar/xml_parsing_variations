@@ -13,7 +13,7 @@
 <style>
 .codeview {white-space: nowrap; font-family: monospace;}
 </style>
-<b>packing results in this (level 2)</b>
+<b>packing results in this (level 2B)</b>
 <div id="packed2" class="codeview"></div>
 <hr>
 <b>packing results in this (level 1)</b>
@@ -195,12 +195,26 @@ function parens(str,codes){
         content=parts[parts.length-1];
         parts.splice(-1);
     }
+    //debug//console.log(parts)
+    // new style attribute packing
+    var attribs=parts.slice(0,parts.length/2)
+    var values=parts.slice(parts.length/2,parts.length)
+    //console.log(attribs,values)
+    /*
     var attributes='';
     for(var i=0; i<parts.length; i+=2){
         if(parts[i+1]!='')
             attributes+=' '+codes(parts[i],'nodeName')+'="'+parts[i+1]+'"';
         else
             attributes+=' '+codes(parts[i],'nodeName');
+    }
+    */
+    var attributes='';
+    for(i in attribs){
+        if(values[i]!='')
+            attributes+=' '+codes(attribs[i],'nodeName')+'="'+values[i]+'"';
+        else
+            attributes+=' '+codes(attribs[i],'nodeName');
     }
     var to_return='<'+tagname+attributes+'>'+parse(content,codes)+'</'+tagname+'>';
     return to_return;
@@ -270,9 +284,20 @@ function parensCodes(str,codes){
         parts.splice(-1);
     }
     var attributes='';
+    //debug//console.log(parts)
+    // new style attributes packing
+    var attribs=[], values=[];
+    for(i in parts){
+        if(i%2==0) attribs.push(parts[i]);
+        else values.push(parts[i]);
+    }
+    for(attrib of attribs) attributes+='|'+codes(attrib,'nodeName');
+    for(value of values) attributes+='|'+value;
+    /*
     for(var i=0; i<parts.length; i+=2){
         attributes+='|'+codes(parts[i],'nodeName')+'|'+parts[i+1];
     }
+    */
     var subpart=parseCodes(content,codes);
     if(subpart!='') subpart='|'+subpart;
     var to_return='{'+tagname+attributes+subpart+'}';
