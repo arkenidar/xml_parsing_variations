@@ -13,7 +13,7 @@
 <style>
 .codeview {white-space: nowrap; font-family: monospace;}
 </style>
-<b>packing results in this (level 2B)</b>
+<b>packing results in this (level 2C)</b>
 <div id="packed2" class="codeview"></div>
 <hr>
 <b>packing results in this (level 1)</b>
@@ -239,13 +239,30 @@ function dictSort(dict){
 //$('inject').innerHTML='<div class="msg">some text</div>'
 //console.log(testPack1And2AndUnpack($('inject')))
 
+// todo: multi-digit
+function decode(encoded,base){
+    var integer=0;
+    integer=base.indexOf(encoded)
+    return integer;
+}
+
+// todo: multi-digit
+function encode(integer,base){
+    var encoded='';
+    encoded+=base[integer]
+    return encoded;
+}
+
+//console.log(decode(encode(10))) // debug check
+
 function testPack1And2AndUnpack(node){
     // pack phase1
     var packed=pack(node,{tagName:{},nodeName:{}})
     // pack phase2
-    var parsedCodes=parseCodes(packed.text,(code,type)=>packed.dictionary[type].indexOf(code))
+    var base62='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    var parsedCodes=parseCodes(packed.text,(code,type)=>encode(packed.dictionary[type].indexOf(code),base62))
     // unpack from phase2
-    var unpackedCodes=unpack(parsedCodes,(i,type)=>packed.dictionary[type][i])
+    var unpackedCodes=unpack(parsedCodes,(i,type)=>packed.dictionary[type][decode(i,base62)])
     return {packed,parsedCodes,unpackedCodes}
 }
 
