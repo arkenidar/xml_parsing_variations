@@ -134,9 +134,12 @@ var dictString=packingResults.packed.dictionary.tagName.join(',')+',,'+packingRe
 $('packed2').innerText=dictString+'\n'+packingResults.parsedCodes
 
 var previousLenght=source.length
-var reduction=previousLenght-$('packed2').innerHTML.length
+var reduction1=previousLenght-$('packed1').innerHTML.length
+var reduction2=previousLenght-$('packed2').innerHTML.length
 
-$('stats').innerHTML='<b>'+Math.round(reduction/(previousLenght/100))+'%</b> reduced of '+reduction+' of '+previousLenght
+reductionStats=reduction=>'<b>'+Math.round(reduction/(previousLenght/100))+'%</b> reduced of '+reduction+' of '+previousLenght
+$('stats').innerHTML=reductionStats(reduction1)+' (level1)'+'<br>'+reductionStats(reduction2)+' (level2)'
+
 $('packed_from_this').innerText=source
 
 $('unpacked').innerText=packingResults.unpackedCodes
