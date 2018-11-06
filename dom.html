@@ -32,7 +32,14 @@
 
 <div style="display:none" id="inject"></div>
 
-<iframe id="show"></iframe>
+<button onclick="
+$('show').width=Math.max(parseInt($('show').width)+15,200);
+$('show').height=Math.max(parseInt($('show').height)+15,200);
+">+</button> <button onclick="
+$('show').width=Math.max(parseInt($('show').width)-15,200);
+$('show').height=Math.max(parseInt($('show').height)-15,200);
+">-</button> <br>
+<iframe id="show" width="400" height="400"></iframe>
 
 <script>
 
