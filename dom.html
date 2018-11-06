@@ -129,7 +129,9 @@ var packingResults=testPack1And2AndUnpack(
     document.createRange().createContextualFragment(source)
     )
 $('packed1').innerText=packingResults.packed.text
-$('packed2').innerText=packingResults.parsedCodes
+var dictString=packingResults.packed.dictionary.tagName.join(',')+',,'+packingResults.packed.dictionary.nodeName.join(',')
+//var dictString=JSON.stringify(packingResults.packed.dictionary)
+$('packed2').innerText=dictString+'\n'+packingResults.parsedCodes
 
 var previousLenght=source.length
 var reduction=previousLenght-$('packed2').innerHTML.length
