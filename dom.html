@@ -59,6 +59,15 @@ function processNodes(nodes){
     return subNodes.join('')
 }
 
+function escapeHtml(unsafe) {
+return unsafe
+.replace(/&/g, "&amp;")
+.replace(/</g, "&lt;")
+.replace(/>/g, "&gt;")
+.replace(/"/g, "&quot;")
+.replace(/'/g, "&#039;")
+}
+
 function processNode(processedNode){
     
     function addToDictionary(name,type){
@@ -71,7 +80,7 @@ function processNode(processedNode){
 
     switch(processedNode.nodeType){
         case processedNode.TEXT_NODE:
-            return processedNode.textContent
+            return escapeHtml(processedNode.textContent)
             break
         case processedNode.ELEMENT_NODE:
             var produced=[]
