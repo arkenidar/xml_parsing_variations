@@ -43,6 +43,10 @@ $('show').height=Math.max(parseInt($('show').height)-15,200);
 
 <script>
 
+// toward parametric specificying of special characters (delimiters)
+//var opening='{',closing='}',middle='|'
+var opening='@',closing='^',middle='~'
+
 function processDOM(nodes,dictionary){
 
 dictOn=()=>typeof dictionary!='undefined'
@@ -73,19 +77,19 @@ function processNode(processedNode){
             var produced=[]
             var tagName=processedNode.tagName.toLowerCase()
             addToDictionary(tagName,'tagName')
-            produced.push('{'+tagName)
+            produced.push(opening+tagName)
             var attribute_section=[]
             for(attribute of processedNode.attributes){
                 var nodeName=attribute.nodeName
                 addToDictionary(nodeName,'nodeName')
-                attribute_section.push(nodeName+'|'+attribute.nodeValue)
+                attribute_section.push(nodeName+middle+attribute.nodeValue)
             }
             produced.push(...attribute_section)
             if(processedNode.childNodes){
                 var sub=processNodes(processedNode.childNodes)
                 if(sub!='')produced.push(sub)
             }
-            return produced.join('|')+'}'
+            return produced.join(middle)+closing
             break
     }
 }
@@ -161,13 +165,13 @@ function parse(str,codes){
     var level=0;
     buffer='';
     for(var i=0;i<str.length;i++){
-        if(level==0 && str[i]!='{' && str[i]!='}')
+        if(level==0 && str[i]!=opening && str[i]!=closing)
             buffer+=str[i];
-        if(str[i]=='{'){
+        if(str[i]==opening){
             if(level==0) open=i;
             level++;
         }
-        if(str[i]=='}'){
+        if(str[i]==closing){
             level--;
             if(level==0) {
                 close=i;
@@ -186,15 +190,15 @@ function parens(str,codes){
     var array=[];
     for(var i=0; i<parts.length; i++)
     {
-        if(parts[i]=='{'){
+        if(parts[i]==opening){
             array.push(buffer+parts.slice(i));
             buffer='';
             break;
         }
-        if(parts[i]!='|'){
+        if(parts[i]!=middle){
             buffer+=parts[i];
         }
-        if(parts[i]=='|'){
+        if(parts[i]==middle){
             array.push(buffer);
             buffer='';
         }
@@ -296,15 +300,15 @@ function parensCodes(str,codes){
     var array=[];
     for(var i=0; i<parts.length; i++)
     {
-        if(parts[i]=='{'){
+        if(parts[i]==opening){
             array.push(buffer+parts.slice(i));
             buffer='';
             break;
         }
-        if(parts[i]!='|'){
+        if(parts[i]!=middle){
             buffer+=parts[i];
         }
-        if(parts[i]=='|'){
+        if(parts[i]==middle){
             array.push(buffer);
             buffer='';
         }
@@ -329,16 +333,16 @@ function parensCodes(str,codes){
         if(i%2==0) attribs.push(parts[i]);
         else values.push(parts[i]);
     }
-    for(attrib of attribs) attributes+='|'+codes(attrib,'nodeName');
-    for(value of values) attributes+='|'+value;
+    for(attrib of attribs) attributes+=middle+codes(attrib,'nodeName');
+    for(value of values) attributes+=middle+value;
     /*
     for(var i=0; i<parts.length; i+=2){
-        attributes+='|'+codes(parts[i],'nodeName')+'|'+parts[i+1];
+        attributes+=middle+codes(parts[i],'nodeName')+middle+parts[i+1];
     }
     */
     var subpart=parseCodes(content,codes);
-    if(subpart!='') subpart='|'+subpart;
-    var to_return='{'+tagname+attributes+subpart+'}';
+    if(subpart!='') subpart=middle+subpart;
+    var to_return=opening+tagname+attributes+subpart+closing;
     return to_return;
 }
 
@@ -347,13 +351,13 @@ function parseCodes(str,codes){
     var level=0;
     buffer='';
     for(var i=0;i<str.length;i++){
-        if(level==0 && str[i]!='{' && str[i]!='}')
+        if(level==0 && str[i]!=opening && str[i]!=closing)
             buffer+=str[i];
-        if(str[i]=='{'){
+        if(str[i]==opening){
             if(level==0) open=i;
             level++;
         }
-        if(str[i]=='}'){
+        if(str[i]==closing){
             level--;
             if(level==0) {
                 close=i;
