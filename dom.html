@@ -5,6 +5,7 @@
 
 <button onclick="useFileSource('benchmark1.html')">benchmark1</button> 
 <button onclick="useFileSource('benchmark2.html')">benchmark2</button>
+<button onclick="useFileSource('https://arkenidar.github.io/ractive_examples/ejs_tutorial.html')">benchmark3</button>
 <button onclick="useFileSource(prompt('benchmark file URL','benchmark1.html'))">from url...</button>
 
 <br>
@@ -138,7 +139,7 @@ function $(id){
 
 //useSource($('pack_this').innerHTML)
 
-useFileSource('http://localhost:8080/ractive_examples/ejs_tutorial.html')
+useFileSource('benchmark2.html')
 
 function useFileSource(url){
     get=async(url,type='text')=>await(await fetch(url))[type]()
