@@ -63,7 +63,7 @@ return unsafe
 .replace(/&/g, "&amp;")
 .replace(/</g, "&lt;")
 .replace(/>/g, "&gt;")
-.replace(/"/g, "&quot;")
+//.replace(/"/g, "&quot;")
 .replace(/'/g, "&#039;")
 }
 
@@ -79,7 +79,11 @@ function processNode(processedNode){
 
     switch(processedNode.nodeType){
         case processedNode.TEXT_NODE:
+            //return processedNode.textContent
+            //console.log(processedNode.parentNode.tagName)
+            if(processedNode.parentNode.tagName=='DIV')
             return escapeHtml(processedNode.textContent)
+            else return processedNode.textContent
             break
         case processedNode.ELEMENT_NODE:
             var produced=[]
@@ -134,7 +138,7 @@ function $(id){
 
 //useSource($('pack_this').innerHTML)
 
-useFileSource('benchmark1.html')
+useFileSource('http://localhost:8080/ractive_examples/ejs_tutorial.html')
 
 function useFileSource(url){
     get=async(url,type='text')=>await(await fetch(url))[type]()
@@ -248,8 +252,11 @@ function parens(str,codes){
     var to_return;
     if(child!='')
         to_return='<'+tagname+attributes+'>'+child+'</'+tagname+'>';
-    else
-        to_return='<'+tagname+attributes+'>';
+    else{
+        var special_closing='';
+        if(tagname=='script')special_closing='<\/script>';
+        to_return='<'+tagname+attributes+'>'+special_closing;
+    }
     return to_return;
 }
 
@@ -296,7 +303,9 @@ function testPack1And2AndUnpack(node){
     var parsedCodes=parseCodes(packed.text,(code,type)=>encode(packed.dictionary[type].indexOf(code),base62))
     // unpack from phase2
     var unpackedCodes=unpack(parsedCodes,(i,type)=>packed.dictionary[type][decode(i,base62)])
-    return {packed,parsedCodes,unpackedCodes}
+    return {packed,parsedCodes,
+        unpackedCodes:('<!doctype html><body>'+unpackedCodes+'</body>')
+    }
 }
 
 //////////////////////////////////////////////
