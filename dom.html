@@ -5,7 +5,6 @@
 
 <button onclick="useFileSource('benchmark1.html')">benchmark1</button> 
 <button onclick="useFileSource('benchmark2.html')">benchmark2</button>
-<button onclick="useFileSource('benchmark3.html')">benchmark3</button>
 <button onclick="useFileSource(prompt('benchmark file URL','benchmark1.html'))">from url...</button>
 
 <br>
@@ -250,7 +249,7 @@ function parens(str,codes){
     if(child!='')
         to_return='<'+tagname+attributes+'>'+child+'</'+tagname+'>';
     else
-        to_return='<'+tagname+attributes+'/>';
+        to_return='<'+tagname+attributes+'>';
     return to_return;
 }
 
