@@ -139,7 +139,7 @@ function $(id){
 
 //useSource($('pack_this').innerHTML)
 
-useFileSource('benchmark2.html')
+useFileSource('benchmark1.html')
 
 function useFileSource(url){
     get=async(url,type='text')=>await(await fetch(url))[type]()
