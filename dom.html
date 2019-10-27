@@ -5,7 +5,8 @@
 
 <button onclick="useFileSource('benchmark1.html')">benchmark1</button> 
 <button onclick="useFileSource('benchmark2.html')">benchmark2</button>
-<button onclick="useFileSource('https://arkenidar.github.io/ractive_examples/ejs_tutorial.html')">benchmark3</button>
+<button onclick="useFileSource('benchmark3.html')">benchmark3</button>
+<button onclick="useFileSource('https://arkenidar.github.io/ractive_examples/ejs_tutorial.html')">benchmark4</button>
 <button onclick="useFileSource(prompt('benchmark file URL','benchmark1.html'))">from url...</button>
 
 <br>
@@ -139,7 +140,7 @@ function $(id){
 
 //useSource($('pack_this').innerHTML)
 
-useFileSource('benchmark1.html')
+useFileSource('benchmark3.html')
 
 function useFileSource(url){
     get=async(url,type='text')=>await(await fetch(url))[type]()
@@ -256,7 +257,9 @@ function parens(str,codes){
     else{
         var special_closing='';
         if(tagname=='script')special_closing='<\/script>';
-        to_return='<'+tagname+attributes+'>'+special_closing;
+        var slash='';
+        if(['path'].indexOf(tagname)!=-1) slash='\/';
+        to_return='<'+tagname+attributes+slash+'>'+special_closing;
     }
     return to_return;
 }
