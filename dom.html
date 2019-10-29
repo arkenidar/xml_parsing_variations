@@ -48,7 +48,7 @@ $('show').height=Math.max(parseInt($('show').height)-15,200);
 //var opening='{',closing='}',middle='|'
 var opening='@',closing='^',middle='~'
 
-function processDOM(nodes,dictionary){
+function processDOM(node,dictionary){
 
 dictOn=()=>typeof dictionary!='undefined'
 
@@ -105,21 +105,33 @@ function processNode(processedNode){
             }
             return produced.join(middle)+closing
             break
+        case Node.DOCUMENT_NODE:
+            var document='';
+            if(processedNode.head.childElementCount!=0)
+                document+=processNode(processedNode.head);
+            if(processedNode.body.childElementCount!=0)
+                document+=processNode(processedNode.body);
+            return document;
+            break;
+        default:
+            console.log('nodeType',processedNode.nodeType);
+            return 'case not handled! error!';
+            break;
     }
 }
 
-var text=processNodes(nodes)
+var text=processNode(node)
 return {text,dictionary}
 }
 
 // HTML => packed
 function pack(node,dictionary){
-    var packed=processDOM(node.childNodes,dictionary)
+    var packed=processDOM(node,dictionary)
     if(typeof dictionary!='undefined'){
         function processDictionary(dictionary){
             dictionary=dictSort(dictionary)
             dictionary=dictionary.map(e=>e[0])
-            return dictionary   
+            return dictionary
         }
         packed.dictionary.tagName=processDictionary(packed.dictionary.tagName)
         packed.dictionary.nodeName=processDictionary(packed.dictionary.nodeName)
@@ -149,9 +161,21 @@ function useFileSource(url){
 }
 
 function useSource(source){
+function documentFromSourceCode(sourceCode){
+    newDocument=document.implementation.createHTMLDocument();
+    newDocument.open();
+    newDocument.write(sourceCode);
+    newDocument.close();
+    return newDocument;
+}
 
 var packingResults=testPack1And2AndUnpack(
-    document.createRange().createContextualFragment(source)
+    //document.createRange().createContextualFragment(source)
+    /* NOTE: A DocumentFragment will still strip the <head> and <body> tags,
+    so it won't do what you want either.
+    You really need to create a whole new Document.
+    https://stackoverflow.com/questions/8202195/using-document-createdocumentfragment-and-innerhtml-to-manipulate-a-dom */
+    documentFromSourceCode(source)
     )
 $('packed1').innerText=packingResults.packed.text
 var dictString=packingResults.packed.dictionary.tagName.join(',')+',,'+packingResults.packed.dictionary.nodeName.join(',')
@@ -308,7 +332,7 @@ function testPack1And2AndUnpack(node){
     // unpack from phase2
     var unpackedCodes=unpack(parsedCodes,(i,type)=>packed.dictionary[type][decode(i,base62)])
     return {packed,parsedCodes,
-        unpackedCodes:('<!doctype html><body>'+unpackedCodes+'</body>')
+        unpackedCodes:('<!doctype html>'+unpackedCodes)
     }
 }
 
