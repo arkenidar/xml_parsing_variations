@@ -70,7 +70,9 @@ return unsafe
 }
 
 function processNode(processedNode){
-    
+
+    //return new XMLSerializer().serializeToString(processedNode);
+
     function addToDictionary(name,type){
         if(!dictOn()) return
         if(name in dictionary[type])
@@ -107,15 +109,18 @@ function processNode(processedNode){
             break
         case Node.DOCUMENT_NODE:
             var document='';
-            if(processedNode.head.childElementCount!=0)
-                document+=processNode(processedNode.head);
-            if(processedNode.body.childElementCount!=0)
-                document+=processNode(processedNode.body);
+            //document+=processNodes(processedNode.childNodes);
+            if(processedNode.doctype!=null) document+=processNode(processedNode.doctype);
+            if(processedNode.head.childElementCount!=0) document+=processNode(processedNode.head);
+            if(processedNode.body.childElementCount!=0) document+=processNode(processedNode.body);
             return document;
             break;
+        case Node.DOCUMENT_TYPE_NODE:
+            return new XMLSerializer().serializeToString(processedNode);
+            break;
         default:
-            console.log('nodeType',processedNode.nodeType);
-            return 'case not handled! error!';
+            console.error('not handled, nodeType:',processedNode.nodeType);
+            return '<case not handled! error!>';
             break;
     }
 }
@@ -152,7 +157,7 @@ function $(id){
 
 //useSource($('pack_this').innerHTML)
 
-useFileSource('benchmark3.html')
+useFileSource('benchmark1.html')
 
 function useFileSource(url){
     get=async(url,type='text')=>await(await fetch(url))[type]()
@@ -331,9 +336,7 @@ function testPack1And2AndUnpack(node){
     var parsedCodes=parseCodes(packed.text,(code,type)=>encode(packed.dictionary[type].indexOf(code),base62))
     // unpack from phase2
     var unpackedCodes=unpack(parsedCodes,(i,type)=>packed.dictionary[type][decode(i,base62)])
-    return {packed,parsedCodes,
-        unpackedCodes:('<!doctype html>'+unpackedCodes)
-    }
+    return {packed,parsedCodes,unpackedCodes}
 }
 
 //////////////////////////////////////////////
