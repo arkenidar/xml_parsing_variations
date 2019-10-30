@@ -108,12 +108,22 @@ function processNode(processedNode){
             return produced.join(middle)+closing
             break
         case Node.DOCUMENT_NODE:
+            //console.log(processedNode);
+            return processNodes(processedNode.childNodes);
+            /*
             var document='';
-            //document+=processNodes(processedNode.childNodes);
+            if(true){
+                if(processedNode.doctype!=null) document+=processNode(processedNode.doctype);
+                document+=processNodes(processedNode.children); // .children .childNodes
+            }else{
             if(processedNode.doctype!=null) document+=processNode(processedNode.doctype);
+            if(processedNode.firstElementChild.tagName=='HTML') document+='<html>';
             if(processedNode.head.childElementCount!=0) document+=processNode(processedNode.head);
             if(processedNode.body.childElementCount!=0) document+=processNode(processedNode.body);
+            if(processedNode.lastChild.tagName=='HTML') document+='</html>';
+            }
             return document;
+            */
             break;
         case Node.DOCUMENT_TYPE_NODE:
             return new XMLSerializer().serializeToString(processedNode);
@@ -284,8 +294,9 @@ function parens(str,codes){
     if(child!='')
         to_return='<'+tagname+attributes+'>'+child+'</'+tagname+'>';
     else{
+        if(tagname=='head') return '';
         var special_closing='';
-        if(tagname=='script')special_closing='<\/script>';
+        if(['script','head'].indexOf(tagname)!=-1)special_closing='<\/'+tagname+'>';
         var slash='';
         if(['path'].indexOf(tagname)!=-1) slash='\/';
         to_return='<'+tagname+attributes+slash+'>'+special_closing;
